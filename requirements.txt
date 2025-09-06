@@ -1,0 +1,7 @@
+﻿ultralytics>=8.0
+fastapi
+uvicorn[standard]
+python-multipart
+pillow
+streamlit
+requests
