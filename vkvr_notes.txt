@@ -1,2 +1,7 @@
 streamlit run <filename>
 uvicorn <filename>:<foldername> --reload --host 127.0.0.1 --port 5000
+git status
+git pull origin master
+git push origin master
+git commit -m
+git add .
