@@ -35,5 +35,3 @@ if uploaded_file is not None:
                 st.error(f"Could not connect to backend: {e}")
 else:
     st.info("Please upload an image to start the confirmation process.")
-
-
