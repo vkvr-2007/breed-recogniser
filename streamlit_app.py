@@ -1,37 +1,31 @@
 import streamlit as st
 import requests
+import base64
+from PIL import Image
+import io
 
-# Page setup
-st.set_page_config(page_title="Breed Identifier", layout="centered")
-st.title("🐄 Cattle Breed Confirmation System")
-st.write("""
-Upload an image of the cattle and our system will process it using advanced image recognition algorithms to confirm its breed and provide health insights.
-""")
+st.title("🐄 Animal Breed Recognizer")
 
-# Upload section
-uploaded_file = st.file_uploader("Choose an image file (jpg, jpeg, png)", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
-    
-    if st.button("Confirm Breed"):
-        with st.spinner("Processing image..."):
-            files = {"file": uploaded_file.getvalue()}
-            backend_url = "http://localhost:5000/predict"
-            
-            try:
-                response = requests.post(backend_url, files=files)
-                data = response.json()
-                
-                if "error" in data:
-                    st.error(f"Backend error: {data['error']}")
-                else:
-                    st.success("✅ Breed Confirmation Results")
-                    col1, col2 = st.columns(2)
-                    col1.metric("Breed", data.get('breed', 'N/A'))
-                    col2.metric("Health", data.get('health', 'N/A'))
-                    
-            except Exception as e:
-                st.error(f"Could not connect to backend: {e}")
-else:
-    st.info("Please upload an image to start the confirmation process.")
+    st.image(uploaded_file, caption="Uploaded Image", use_container_width=True)
+
+
+    if st.button("Predict"):
+        files = {"file": uploaded_file.getvalue()}
+        res = requests.post("http://127.0.0.1:5000/predict/", files=files)
+
+        if res.status_code == 200:
+            data = res.json()
+
+            st.success(f"Prediction: {data['breed']}")
+            st.info(f"Health: {data['health']}")
+
+            if "image" in data:
+                img_bytes = base64.b64decode(data["image"])
+                img = Image.open(io.BytesIO(img_bytes))
+                st.image(img, caption="Detected", use_column_width=True)
+
+        else:
+            st.error("Prediction failed 💀")
