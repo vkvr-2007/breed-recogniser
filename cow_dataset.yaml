@@ -1,0 +1,5 @@
+train: C:/Users/REHAN/OneDrive/Desktop/project/breed_dataset/train
+val: C:/Users/REHAN/OneDrive/Desktop/project/breed_dataset/val
+
+nc: 5
+names: ['brahman', 'dhani', 'sahiwal', 'sahiwalcross', 'sibbi']
