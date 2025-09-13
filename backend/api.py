@@ -17,8 +17,8 @@ app.add_middleware(
 )
 
 # Load Rehan’s models
-buffalo_model = YOLO("models/buffalo_v1.pt")
-cow_model = YOLO("models/cow_v1.pt")
+buffalo_model = YOLO("../models/buffalo_v1.pt")
+cow_model = YOLO("../models/cow_v1.pt")
 
 
 @app.post("/predict/")
