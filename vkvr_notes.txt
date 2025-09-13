@@ -5,5 +5,5 @@ git pull origin master
 git push origin master
 git commit -m
 git add .
-.venv\Scripts\Activate.ps1
+.\venv\Scripts\Activate.ps1
 

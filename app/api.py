@@ -4,55 +4,56 @@ from fastapi.middleware.cors import CORSMiddleware
 from ultralytics import YOLO
 import cv2
 import numpy as np
-import base64
-import io
 
 app = FastAPI()
 
-# Enable CORS for frontend
+# Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change to your frontend URL for security
+    allow_origins=["*"],  # Replace later with frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-model = YOLO("yolov8n.pt")
+# Load Rehan’s models
+buffalo_model = YOLO("models/buffalo_v1.pt")
+cow_model = YOLO("models/cow_v1.pt")
 
-class_map = {
-    0: "Angus Cow",
-    1: "Gertrudis Cow",
-    2: "Zebu Cow",
-    3: "Cape Buffalo",
-    4: "Water Buffalo",
-    5: "Angus Buffalo"
-}
 
 @app.post("/predict/")
-async def predict(file: UploadFile = File(...)):
+async def predict(file: UploadFile = File(...), animal: str = "cow"):
+    """
+    Upload image + specify animal type ('cow' or 'buffalo')
+    """
     try:
         contents = await file.read()
-        # In-memory image processing
         nparr = np.frombuffer(contents, np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         if img is None:
             raise ValueError("Invalid image file.")
 
+        # Pick model
+        if animal.lower() == "cow":
+            model = cow_model
+        elif animal.lower() == "buffalo":
+            model = buffalo_model
+        else:
+            raise ValueError("Invalid animal type. Use 'cow' or 'buffalo'.")
+
+        # Run prediction
         results = model(img)
-
-        class_ids = results[0].boxes.cls.tolist()
-        breed_name = class_map.get(int(class_ids[0]), "Unknown") if class_ids else "Unknown"
-
-        annotated = results[0].plot()
-        annotated_rgb = cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB)
-        _, buffer = cv2.imencode(".jpg", annotated_rgb)
-        img_base64 = base64.b64encode(buffer).decode("utf-8")
+        probs = results[0].probs
+        breed_name = model.names[int(probs.top1)]
+        confidence = float(probs.top1conf)
 
         return JSONResponse(content={
+            "animal": animal,
             "breed": breed_name,
-            "health": "Healthy",  # placeholder
-            "image": img_base64
+            "confidence": round(confidence, 3),
+            "health": "Healthy",              # placeholder
+            "cost_estimate": "₹50,000 - ₹80,000",  # placeholder
+            "milk_yield": "8-12 liters/day"   # placeholder
         })
 
     except Exception as e:
