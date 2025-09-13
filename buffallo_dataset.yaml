@@ -1,0 +1,13 @@
+# buffalo.yaml
+nc: 7
+train: C:/Users/REHAN/OneDrive/Desktop/project/buffallo_dataset/train
+val:   C:/Users/REHAN/OneDrive/Desktop/project/buffallo_dataset/val
+
+names:
+  - bhadawari
+  - jaffrabadi
+  - mehsana
+  - murrah
+  - nagpuri
+  - nili_ravi
+  - surti
