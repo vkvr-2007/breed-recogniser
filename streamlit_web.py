@@ -14,7 +14,7 @@ if uploaded_file is not None:
 
     if st.button("Predict"):
         files = {"file": uploaded_file.getvalue()}
-        res = requests.post("http://127.0.0.1:5000/predict/", files=files)
+        res = requests.post("https://breed-recogniser-2.onrender.com", files=files)
 
         if res.status_code == 200:
             data = res.json()

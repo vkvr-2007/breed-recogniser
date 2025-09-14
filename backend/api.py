@@ -10,7 +10,7 @@ app = FastAPI()
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace later with frontend URL
+    allow_origins=["https://breed-recogniser-2.onrender.com"],  # Replace later with frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
