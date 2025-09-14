@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, ActivityIndicator, StyleSheet, useColorScheme } from 'react-native';
 import * as ImagePicker from "expo-image-picker";
-import { Picker } from "@react-native-picker/picker"; // add this dependency
+import { Picker } from "@react-native-picker/picker";
+
 
 export default function HomeScreen({ navigation }) {
   const scheme = useColorScheme();
