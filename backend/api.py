@@ -10,7 +10,7 @@ app = FastAPI()
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://breed-recogniser-2.onrender.com"],  # Replace later with frontend URL
+    allow_origins=["http://192.168.29.215:5000/predict/"],  # Replace later with frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -51,9 +51,6 @@ async def predict(file: UploadFile = File(...), animal: str = "cow"):
             "animal": animal,
             "breed": breed_name,
             "confidence": round(confidence, 3),
-            "health": "Healthy",              # placeholder
-            "cost_estimate": "₹50,000 - ₹80,000",  # placeholder
-            "milk_yield": "8-12 liters/day"   # placeholder
         })
 
     except Exception as e:
