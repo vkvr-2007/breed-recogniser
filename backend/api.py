@@ -7,25 +7,21 @@ import numpy as np
 
 app = FastAPI()
 
-# Enable CORS
+# Allow CORS (Streamlit + Expo Go frontend can call)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://192.168.29.215:5000/predict/"],  # Replace later with frontend URL
+    allow_origins=["*"],  # in dev allow all, later restrict to frontend IP
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Load Rehan’s models
-buffalo_model = YOLO("../models/buffalo_v1.pt")
-cow_model = YOLO("../models/cow_v1.pt")
-
+# Load models
+buffalo_model = YOLO("models/buffalo_v1.pt")
+cow_model = YOLO("models/cow_v1.pt")
 
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...), animal: str = "cow"):
-    """
-    Upload image + specify animal type ('cow' or 'buffalo')
-    """
     try:
         contents = await file.read()
         nparr = np.frombuffer(contents, np.uint8)
@@ -33,7 +29,6 @@ async def predict(file: UploadFile = File(...), animal: str = "cow"):
         if img is None:
             raise ValueError("Invalid image file.")
 
-        # Pick model
         if animal.lower() == "cow":
             model = cow_model
         elif animal.lower() == "buffalo":
@@ -41,7 +36,6 @@ async def predict(file: UploadFile = File(...), animal: str = "cow"):
         else:
             raise ValueError("Invalid animal type. Use 'cow' or 'buffalo'.")
 
-        # Run prediction
         results = model(img)
         probs = results[0].probs
         breed_name = model.names[int(probs.top1)]
@@ -55,3 +49,7 @@ async def predict(file: UploadFile = File(...), animal: str = "cow"):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "FastAPI backend running"}
