@@ -6,6 +6,7 @@ from deep_translator import GoogleTranslator
 st.set_page_config(page_title="Smart Livestock Analyzer", layout="centered")
 st.title("🐄 Smart Livestock Analyzer – Cow & Buffalo Breed Detection")
 
+# ---------------- Session State ----------------
 if "page" not in st.session_state:
     st.session_state.page = "page1"
 if "animal_type" not in st.session_state:
@@ -20,7 +21,6 @@ if "dark_mode" not in st.session_state:
     st.session_state.dark_mode = False
 
 # ---------------- Translator ----------------
-translator = GoogleTranslator(source='auto', target=st.session_state.language)
 def t(text):
     if st.session_state.language == "en":
         return text
@@ -29,26 +29,67 @@ def t(text):
     except:
         return text
 
+# ---------------- Theme Toggle ----------------
+def toggle_theme():
+    st.session_state.dark_mode = not st.session_state.dark_mode
+    st.rerun()
+
+rightcol = st.columns([8, 1])[1]
+with rightcol:
+    if st.button("🌙" if not st.session_state.dark_mode else "☀", help="Toggle dark/light theme"):
+        toggle_theme()
+
 # ---------------- CSS ----------------
-def apply_css():
-    if st.session_state.dark_mode:
-        st.markdown(
-            """<style>
-                body { background-color: #1e1e1e; color: white; }
-                .stButton>button { background-color: #444; color: white; border-radius: 8px; }
-            </style>""", unsafe_allow_html=True)
-    else:
-        st.markdown(
-            """<style>
-                body { background-color: white; color: black; }
-                .stButton>button { background-color: #007BFF; color: white; border-radius: 8px; }
-            </style>""", unsafe_allow_html=True)
-
-    st.markdown("""<style>
-        div.stButton { display: flex; justify-content: center; }
-    </style>""", unsafe_allow_html=True)
-
-apply_css()
+if st.session_state.dark_mode:
+    st.markdown("""
+        <style>
+        body, .stApp, .main, [data-testid="stSidebar"], .block-container {
+            background-color: #181c23 !important;
+            color: white !important;
+        }
+        label, p, span, h1, h2, h3, h4, h5, h6, div {
+            color: white !important;
+        }
+        div[data-testid="stSidebarNav"] {
+            background: #26293c !important;
+            color: white !important;
+        }
+        .stButton>button, .stDownloadButton>button {
+            background-color: #383e49 !important;
+            color: white !important;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        ::placeholder {
+            color: #ccc !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+else:
+    st.markdown("""
+        <style>
+        body, .stApp, .main, [data-testid="stSidebar"], .block-container {
+            background-color: #f7fafb !important;
+            color: black !important;
+        }
+        label, p, span, h1, h2, h3, h4, h5, h6, div {
+            color: black !important;
+        }
+        div[data-testid="stSidebarNav"] {
+            background: #f5eaea !important;
+            color: black !important;
+        }
+        .stButton>button, .stDownloadButton>button {
+            background-color: #fffbea !important;
+            color: black !important;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        ::placeholder {
+            color: #666 !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
 # ---------------- Sidebar ----------------
 st.sidebar.header("🌐 Language")
@@ -66,13 +107,9 @@ lang_choice = st.sidebar.selectbox(
 )
 st.session_state.language = lang_choice[0]
 
-if st.sidebar.button("🌞 / 🌙 Toggle Mode"):
-    st.session_state.dark_mode = not st.session_state.dark_mode
-    st.rerun()
-
-# Backend API URL
-API_URL = "http://127.0.0.1:8000/predict/"  # if same PC
-# API_URL = "http://192.168.xx.xx:8000/predict/"  # if calling from phone
+# ---------------- Backend API ----------------
+API_URL = "http://127.0.0.1:8000/predict/"  # Localhost
+# API_URL = "http://192.168.xx.xx:8000/predict/"  # Use LAN IP for mobile access
 
 # ---------------- Page 1: Select Animal ----------------
 if st.session_state.page == "page1":
@@ -143,7 +180,7 @@ elif st.session_state.page == "page3":
                         try:
                             files = {"file": st.session_state.uploaded_file.getvalue()}
                             data = {"animal": st.session_state.animal_type}
-                            response = requests.post(API_URL, files={"file": st.session_state.uploaded_file.getvalue()}, data=data)
+                            response = requests.post(API_URL, files=files, data=data)
                             if response.status_code == 200:
                                 result = response.json()
                                 st.success(f"🐮 {t('Detected Breed')}: **{result['breed']}** ({result['confidence']*100:.1f}% confidence)")
@@ -151,10 +188,8 @@ elif st.session_state.page == "page3":
                                 st.error(f"❌ {t('Error from server:')} {response.text}")
                         except Exception as e:
                             st.error(f"⚠️ {t('Failed to connect to backend:')} {e}")
-
                 else:
                     st.info("ℹ️ " + t("This feature is coming soon."))
-
             else:
                 st.warning("⚠️ " + t("Please select an option before proceeding."))
 
