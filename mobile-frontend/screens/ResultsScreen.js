@@ -22,7 +22,7 @@ export default function ResultsScreen({ route }) {
     formData.append("animal", animal);
 
     try {
-      let res = await fetch("http://192.168.29.215:5000/predict/", {
+      let res = await fetch("http://192.168.90.202:5000/predict/", {
         method: "POST",
         headers: { "Content-Type": "multipart/form-data" },
         body: formData,
